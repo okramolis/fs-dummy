@@ -716,6 +716,120 @@ describe.only('Dummy', function() {
 
   });
 
+  describe('.verifyFile()', function() {
+
+    before(manualInitDummy);
+
+    describe('when the dummy file does not exist', function() {
+
+      before(function() {
+        fs.removeSync(path.join(TEST_ROOT_PATH, TEST_FILE));
+      });
+
+      it('should fail with ENOENT error', function(done) {
+
+        dummy.verifyFile(function(err) {
+          expect(err).to.be.instanceOf(DummyError);
+          expect(err.code).to.equal('ENOENT');
+          done();
+        });
+
+      });
+
+    });
+
+    describe('when the dummy file exists but its content does not match', function() {
+
+      before(function() {
+        fs.outputFileSync(path.join(TEST_ROOT_PATH, TEST_FILE), getRandStr());
+      });
+
+      it('should fail with NOMATCH_CONTENT error', function(done) {
+
+        dummy.verifyFile(function(err) {
+          expect(err).to.be.instanceOf(DummyError);
+          expect(err.code).to.equal('NOMATCH_CONTENT');
+          done();
+        });
+
+      });
+
+    });
+
+    describe('when the dummy file does exist and its content does match', function() {
+
+      before(manualInitDummy);
+
+      it('should pass with no error', function(done) {
+
+        dummy.verifyFile(function(err) {
+          expect(err).to.not.exist;
+          done();
+        });
+
+      });
+
+    });
+
+  });
+
+  describe('.verifyFolder()', function() {
+
+    before(manualInitDummy);
+
+    describe('when the dummy folder does not exist', function() {
+
+      before(function() {
+        fs.removeSync(path.join(TEST_ROOT_PATH, TEST_INDIR));
+      });
+
+      it('should fail with ENOENT error', function(done) {
+
+        dummy.verifyFolder(function(err) {
+          expect(err).to.be.instanceOf(DummyError);
+          expect(err.code).to.equal('ENOENT');
+          done();
+        });
+
+      });
+
+    });
+
+    describe('when the dummy folder exists but its children do not match', function() {
+
+      before(function() {
+        fs.ensureFileSync(path.join(TEST_ROOT_PATH, TEST_INDIR, getRandStr()));
+      });
+
+      it('should fail with UNKNOWN_DETECTED error', function(done) {
+
+        dummy.verifyFolder(function(err) {
+          expect(err).to.be.instanceOf(DummyError);
+          expect(err.code).to.equal('UNKNOWN_DETECTED');
+          done();
+        });
+
+      });
+
+    });
+
+    describe('when the dummy folder does exist and its children do match', function() {
+
+      before(manualInitDummy);
+
+      it('should pass with no error', function(done) {
+
+        dummy.verifyFolder(function(err) {
+          expect(err).to.not.exist;
+          done();
+        });
+
+      });
+
+    });
+
+  });
+
 });
 
 function manualInitDummyRoot(callback) {
