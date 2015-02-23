@@ -46,3 +46,15 @@ Checks the dummy's state on the file system is exactly the same as it should be.
 
 __Arguments__
 * `callback(err)` - Callback that is called only with a possible error. If no error then state of the instance matches its state on file system and the verification was successfull.
+
+### verifyFile(callback)
+Checks the dummy's inner file state on the file system is exactly the same as it should be. That is the file exists under its name and its content remains unchanged.
+
+__Arguments__
+* `callback(err)` - Callback that is called only with a possible error. If no error then state of the instance matches its state on file system and the verification was successfull.
+
+### verifyFolder(callback)
+Checks the dummy's inner folder state on the file system is exactly the same as it should be. That is the folder exists under its name and is empty.
+
+__Arguments__
+* `callback(err)` - Callback that is called only with a possible error. If no error then state of the instance matches its state on file system and the verification was successfull.
