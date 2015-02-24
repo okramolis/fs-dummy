@@ -35,8 +35,32 @@ Creates the dummy on the file system.
 __Arguments__
 * `callback(err)` - Callback that is called only with a possible error.
 
+### ensureFile(callback)
+Creates the dummy file on the file system. The dummy root directory must exist.
+
+__Arguments__
+* `callback(err)` - Callback that is called only with a possible error.
+
+### ensureFolder(callback)
+Creates the dummy folder on the file system. The dummy root directory must exist.
+
+__Arguments__
+* `callback(err)` - Callback that is called only with a possible error.
+
 ### cleanup(callback)
 Removes the dummy from the file system.
+
+__Arguments__
+* `callback(err)` - Callback that is called only with a possible error.
+
+### cleanupFile(callback)
+Removes the dummy file from the file system. The dummy root directory must exist.
+
+__Arguments__
+* `callback(err)` - Callback that is called only with a possible error.
+
+### cleanupFolder(callback)
+Removes the dummy folder from the file system. The dummy root directory must exist.
 
 __Arguments__
 * `callback(err)` - Callback that is called only with a possible error.

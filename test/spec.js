@@ -25,7 +25,7 @@ after(function(done) {
   manualCleanup(done);
 });
 
-describe.only('Dummy', function() {
+describe('Dummy', function() {
 
   after(manualCleanup);
 
@@ -95,6 +95,93 @@ describe.only('Dummy', function() {
 
   });
 
+  describe('._removeFile()', function() {
+
+    describe('when dummy is not initialized', function() {
+
+      before(manualCleanup);
+
+      it('should ensure dummy file is still missing', function(done) {
+        dummy._removeFile(assertNoDummyFile.bind(null, done));
+      });
+
+    });
+
+    describe('when dummy is initialized but dummy file is missing', function() {
+
+      before(manualInitDummyRoot);
+
+      it('should ensure dummy file is still missing', function(done) {
+        dummy._removeFile(assertNoDummyFile.bind(null, done));
+      });
+
+    });
+
+    describe('when dummy is properly initialized', function() {
+
+      before(manualInitDummy);
+
+      it('should remove dummy file', function(done) {
+        dummy._removeFile(assertNoDummyFile.bind(null, done));
+      });
+
+    });
+
+  });
+
+  describe('._removeFolder()', function() {
+
+    describe('when dummy is not initialized', function() {
+
+      before(manualCleanup);
+
+      it('should ensure dummy folder is still missing', function(done) {
+        dummy._removeFolder(assertNoDummyFolder.bind(null, done));
+      });
+
+    });
+
+    describe('when dummy is initialized but dummy folder is missing', function() {
+
+      before(manualInitDummyRoot);
+
+      it('should ensure dummy folder is still missing', function(done) {
+        dummy._removeFolder(assertNoDummyFolder.bind(null, done));
+      });
+
+    });
+
+    describe('when dummy is properly initialized', function() {
+
+      before(manualInitDummy);
+
+      it('should remove dummy folder', function(done) {
+        dummy._removeFolder(assertNoDummyFolder.bind(null, done));
+      });
+
+    });
+
+    describe('when dummy is properly initialized but dummy folder ' +
+             'is not empty', function() {
+
+      before(function(done) {
+        async.series([
+          manualInitDummy,
+          fs.ensureFile.bind(
+            null,
+            path.join(TEST_ROOT_PATH, TEST_INDIR, getRandStr())
+          )
+        ], done);
+      });
+
+      it('should remove dummy folder', function(done) {
+        dummy._removeFolder(assertNoDummyFolder.bind(null, done));
+      });
+
+    });
+
+  });
+
   describe('._verifyRootStat()', function() {
 
     describe('when there is nothing at path of dummy root directory', function() {
@@ -102,11 +189,7 @@ describe.only('Dummy', function() {
       before(manualCleanup);
 
       it('should fail with ENOENT error', function(done) {
-        dummy._verifyRootStat(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('ENOENT');
-          done();
-        });
+        dummy._verifyRootStat(assertErrCode.bind(null, 'ENOENT', done));
       });
 
     });
@@ -122,11 +205,7 @@ describe.only('Dummy', function() {
       });
 
       it('should fail with STAT_ENOTDIR error', function(done) {
-        dummy._verifyRootStat(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('STAT_ENOTDIR');
-          done();
-        });
+        dummy._verifyRootStat(assertErrCode.bind(null, 'STAT_ENOTDIR', done));
       });
 
     });
@@ -142,11 +221,7 @@ describe.only('Dummy', function() {
       });
 
       it('should fail with STAT_ENOTDIR error', function(done) {
-        dummy._verifyRootStat(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('STAT_ENOTDIR');
-          done();
-        });
+        dummy._verifyRootStat(assertErrCode.bind(null, 'STAT_ENOTDIR', done));
       });
 
     });
@@ -182,11 +257,7 @@ describe.only('Dummy', function() {
       before(manualInitDummyRoot);
 
       it('should fail with MANDATORY_MISSING error', function(done) {
-        dummy._verifyRootChildren(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('MANDATORY_MISSING');
-          done();
-        });
+        dummy._verifyRootChildren(assertErrCode.bind(null, 'MANDATORY_MISSING', done));
       });
 
     });
@@ -202,12 +273,11 @@ describe.only('Dummy', function() {
       });
 
       it('should fail with UNKNOWN_DETECTED or MANDATORY_MISSING error', function(done) {
-        dummy._verifyRootChildren(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          assert.isTrue(err.code === 'UNKNOWN_DETECTED' || err.code === 'MANDATORY_MISSING',
-                        'error [' + err + '] matches neither UNKNOWN_DETECTED nor MANDATORY_MISSING');
-          done();
-        });
+        dummy._verifyRootChildren(assertErrCode.bind(
+          null,
+          /^(UNKNOWN_DETECTED|MANDATORY_MISSING)$/,
+          done
+        ));
       });
 
     });
@@ -223,11 +293,7 @@ describe.only('Dummy', function() {
       });
 
       it('should fail with MANDATORY_MISSING error', function(done) {
-        dummy._verifyRootChildren(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('MANDATORY_MISSING');
-          done();
-        });
+        dummy._verifyRootChildren(assertErrCode.bind(null, 'MANDATORY_MISSING', done));
       });
 
     });
@@ -243,11 +309,7 @@ describe.only('Dummy', function() {
       });
 
       it('should fail with MANDATORY_MISSING error', function(done) {
-        dummy._verifyRootChildren(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('MANDATORY_MISSING');
-          done();
-        });
+        dummy._verifyRootChildren(assertErrCode.bind(null, 'MANDATORY_MISSING', done));
       });
 
     });
@@ -263,11 +325,7 @@ describe.only('Dummy', function() {
       });
 
       it('should fail with UNKNOWN_DETECTED error', function(done) {
-        dummy._verifyRootChildren(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('UNKNOWN_DETECTED');
-          done();
-        });
+        dummy._verifyRootChildren(assertErrCode.bind(null, 'UNKNOWN_DETECTED', done));
       });
 
     });
@@ -283,11 +341,7 @@ describe.only('Dummy', function() {
       });
 
       it('should fail with UNKNOWN_DETECTED error', function(done) {
-        dummy._verifyRootChildren(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('UNKNOWN_DETECTED');
-          done();
-        });
+        dummy._verifyRootChildren(assertErrCode.bind(null, 'UNKNOWN_DETECTED', done));
       });
 
     });
@@ -321,11 +375,7 @@ describe.only('Dummy', function() {
       before(manualInitDummyRoot);
 
       it('should fail with ENOENT error', function(done) {
-        dummy._verifyFileStat(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('ENOENT');
-          done();
-        });
+        dummy._verifyFileStat(assertErrCode.bind(null, 'ENOENT', done));
       });
 
     });
@@ -341,11 +391,7 @@ describe.only('Dummy', function() {
       });
 
       it('should fail with STAT_ENOTFILE error', function(done) {
-        dummy._verifyFileStat(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('STAT_ENOTFILE');
-          done();
-        });
+        dummy._verifyFileStat(assertErrCode.bind(null, 'STAT_ENOTFILE', done));
       });
 
     });
@@ -368,11 +414,7 @@ describe.only('Dummy', function() {
       });
 
       it('should fail with STAT_ENOTFILE error', function(done) {
-        dummy._verifyFileStat(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('STAT_ENOTFILE');
-          done();
-        });
+        dummy._verifyFileStat(assertErrCode.bind(null, 'STAT_ENOTFILE', done));
       });
 
     });
@@ -409,11 +451,7 @@ describe.only('Dummy', function() {
       });
 
       it('should fail with NOMATCH_CONTENT error', function(done) {
-        dummy._verifyFileContent(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('NOMATCH_CONTENT');
-          done();
-        });
+        dummy._verifyFileContent(assertErrCode.bind(null, 'NOMATCH_CONTENT', done));
       });
 
     });
@@ -445,11 +483,7 @@ describe.only('Dummy', function() {
       before(manualInitDummyRoot);
 
       it('should fail with ENOENT error', function(done) {
-        dummy._verifyFolderStat(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('ENOENT');
-          done();
-        });
+        dummy._verifyFolderStat(assertErrCode.bind(null, 'ENOENT', done));
       });
 
     });
@@ -465,11 +499,7 @@ describe.only('Dummy', function() {
       });
 
       it('should fail with STAT_ENOTDIR error', function(done) {
-        dummy._verifyFolderStat(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('STAT_ENOTDIR');
-          done();
-        });
+        dummy._verifyFolderStat(assertErrCode.bind(null, 'STAT_ENOTDIR', done));
       });
 
     });
@@ -485,11 +515,7 @@ describe.only('Dummy', function() {
       });
 
       it('should fail with STAT_ENOTDIR error', function(done) {
-        dummy._verifyFolderStat(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('STAT_ENOTDIR');
-          done();
-        });
+        dummy._verifyFolderStat(assertErrCode.bind(null, 'STAT_ENOTDIR', done));
       });
 
     });
@@ -526,11 +552,7 @@ describe.only('Dummy', function() {
       });
 
       it('should fail with UNKNOWN_DETECTED error', function(done) {
-        dummy._verifyFolderChildren(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('UNKNOWN_DETECTED');
-          done();
-        });
+        dummy._verifyFolderChildren(assertErrCode.bind(null, 'UNKNOWN_DETECTED', done));
       });
 
     });
@@ -557,16 +579,111 @@ describe.only('Dummy', function() {
 
   describe('.cleanup()', function() {
 
-    before(manualInitDummy);
+    describe('when dummy does not exist', function() {
 
-    it('should remove all created files/directories', function(done) {
-      dummy.cleanup(function(err) {
-        expect(err).to.not.exist;
-        fs.exists(TEST_ROOT_PATH, function(exists) {
-          assert.isFalse(exists, 'some files/directories still exist');
-          done();
-        });
+      before(manualCleanup);
+
+      it('should ensure dummy still does not exist', function(done) {
+        dummy.cleanup(assertNoDummy.bind(null, done));
       });
+
+    });
+
+    describe('when dummy exists', function() {
+
+      before(manualInitDummy);
+
+      it('should remove all created files/directories', function(done) {
+        dummy.cleanup(assertNoDummy.bind(null, done));
+      });
+
+    });
+
+  });
+
+  describe('.cleanupFile()', function() {
+
+    describe('when dummy is not initialized', function() {
+
+      before(manualCleanup);
+
+      it('should fail with ENOENT error', function(done) {
+        dummy.cleanupFile(assertErrCode.bind(null, 'ENOENT', done));
+      });
+
+    });
+
+    describe('when dummy is initialized but dummy file is missing', function() {
+
+      before(manualInitDummyRoot);
+
+      it('should ensure dummy file is still missing', function(done) {
+        dummy.cleanupFile(assertNoDummyFile.bind(null, done));
+      });
+
+    });
+
+    describe('when dummy is properly initialized', function() {
+
+      before(manualInitDummy);
+
+      it('should remove dummy file', function(done) {
+        dummy.cleanupFile(assertNoDummyFile.bind(null, done));
+      });
+
+    });
+
+  });
+
+  describe('.cleanupFolder()', function() {
+
+    describe('when dummy is not initialized', function() {
+
+      before(manualCleanup);
+
+      it('should fail with ENOENT error', function(done) {
+        dummy.cleanupFolder(assertErrCode.bind(null, 'ENOENT', done));
+      });
+
+    });
+
+    describe('when dummy is initialized but dummy folder is missing', function() {
+
+      before(manualInitDummyRoot);
+
+      it('should ensure dummy folder is still missing', function(done) {
+        dummy.cleanupFolder(assertNoDummyFolder.bind(null, done));
+      });
+
+    });
+
+    describe('when dummy is properly initialized', function() {
+
+      before(manualInitDummy);
+
+      it('should remove dummy folder', function(done) {
+        dummy.cleanupFolder(assertNoDummyFolder.bind(null, done));
+      });
+
+    });
+
+    describe('when dummy is properly initialized but dummy folder ' +
+             'is not empty', function() {
+
+      before(function(done) {
+        async.series([
+          manualInitDummy,
+          fs.ensureFile.bind(
+            null,
+            path.join(TEST_ROOT_PATH, TEST_INDIR, getRandStr())
+          )
+        ], done);
+      });
+
+      it('should remove dummy folder', function(done) {
+        dummy.cleanupFolder(assertNoDummyFolder.bind(null, done));
+      });
+
     });
 
   });
@@ -601,7 +718,6 @@ describe.only('Dummy', function() {
 
       it('should ensure the dummy exists in current directory with strictly ' +
          'matching content', function(done) {
-
         dummy.ensure(function(err) {
           expect(err).to.not.exist;
           dirio.lconvert(TEST_ROOT_PATH, assertDummyEnsure.bind(null, done));
@@ -616,11 +732,11 @@ describe.only('Dummy', function() {
 
       it('should ensure the dummy exists in current directory with strictly ' +
          'matching content', function(done) {
-
         dummy.ensure(function(err) {
           expect(err).to.not.exist;
           dirio.lconvert(TEST_ROOT_PATH, assertDummyEnsure.bind(null, done));
         });
+
       });
 
     });
@@ -640,16 +756,107 @@ describe.only('Dummy', function() {
 
       it('should ensure the dummy exists in current directory with strictly ' +
          'matching content', function(done) {
-
         dummy.ensure(function(err) {
           expect(err).to.not.exist;
           dirio.lconvert(TEST_ROOT_PATH, assertDummyEnsure.bind(null, done));
         });
+
       });
 
     });
 
   });
+
+  describe('.ensureFile()', function() {
+
+    describe('when dummy is not initialized', function() {
+
+      before(manualCleanup);
+
+      it('should fail with ENOENT error', function(done) {
+        dummy.ensureFile(assertErrCode.bind(null, 'ENOENT', done));
+      });
+
+    });
+
+    describe('when dummy is initialized but dummy file is missing', function() {
+
+      before(manualInitDummyRoot);
+
+      it('should ensure dummy file exists with strictly matching content', function(done) {
+        dummy.ensureFile(assertDummyFile.bind(null, done));
+      });
+
+    });
+
+    describe('when dummy is initialized but content of dummy file ' +
+             'does not match', function() {
+
+      before(function(done) {
+        async.series([
+          manualInitDummyRoot,
+          fs.writeFile.bind(
+            null,
+            path.join(TEST_ROOT_PATH, TEST_FILE),
+            getRandStr()
+          )
+        ], done);
+      });
+
+
+      it('should ensure dummy file exists with strictly matching content', function(done) {
+        dummy.ensureFile(assertDummyFile.bind(null, done));
+      });
+
+    });
+
+  });
+
+  describe('.ensureFolder()', function() {
+
+    describe('when dummy is not initialized', function() {
+
+      before(manualCleanup);
+
+      it('should fail with ENOENT error', function(done) {
+        dummy.ensureFolder(assertErrCode.bind(null, 'ENOENT', done));
+      });
+
+    });
+
+    describe('when dummy is initialized but dummy folder is missing', function() {
+
+      before(manualInitDummyRoot);
+
+      it('should ensure dummy folder exists and is empty', function(done) {
+        dummy.ensureFolder(assertDummyFolder.bind(null, done));
+      });
+
+    });
+
+    describe('when dummy is initialized but dummy folder is not ' +
+             'empty', function() {
+
+      before(function(done) {
+        async.series([
+          manualInitDummyRoot,
+          fs.ensureFile.bind(
+            null,
+            path.join(TEST_ROOT_PATH, TEST_INDIR, getRandStr())
+          )
+        ], done);
+      });
+
+
+      it('should ensure dummy folder exists and is empty', function(done) {
+        dummy.ensureFolder(assertDummyFolder.bind(null, done));
+      });
+
+    });
+
+  });
+
+
 
   describe('.verify()', function() {
 
@@ -658,13 +865,7 @@ describe.only('Dummy', function() {
       before(manualCleanup);
 
       it('should fail with ENOENT error', function(done) {
-
-        dummy.verify(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('ENOENT');
-          done();
-        });
-
+        dummy.verify(assertErrCode.bind(null, 'ENOENT', done));
       });
 
     });
@@ -686,15 +887,11 @@ describe.only('Dummy', function() {
 
       it('should fail with ENOENT or UNKNOWN_DETECTED or MANDATORY_MISSING or ' +
          'NOMATCH_CONTENT or STAT_ENOTDIR or STAT_ENOTFILE error', function(done) {
-
-        dummy.verify(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.match(
-            /^(ENOENT|UNKNOWN_DETECTED|MANDATORY_MISSING|NOMATCH_CONTENT|STAT_ENOTDIR|STAT_ENOTFILE)$/
-          );
-          done();
-        });
-
+        dummy.verify(assertErrCode.bind(
+          null,
+          /^(ENOENT|UNKNOWN_DETECTED|MANDATORY_MISSING|NOMATCH_CONTENT|STAT_ENOTDIR|STAT_ENOTFILE)$/,
+          done
+        ));
       });
 
     });
@@ -704,12 +901,10 @@ describe.only('Dummy', function() {
       before(manualInitDummy);
 
       it('should pass with no error', function(done) {
-
         dummy.verify(function(err) {
           expect(err).to.not.exist;
           done();
         });
-
       });
 
     });
@@ -727,13 +922,7 @@ describe.only('Dummy', function() {
       });
 
       it('should fail with ENOENT error', function(done) {
-
-        dummy.verifyFile(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('ENOENT');
-          done();
-        });
-
+        dummy.verifyFile(assertErrCode.bind(null, 'ENOENT', done));
       });
 
     });
@@ -745,13 +934,7 @@ describe.only('Dummy', function() {
       });
 
       it('should fail with NOMATCH_CONTENT error', function(done) {
-
-        dummy.verifyFile(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('NOMATCH_CONTENT');
-          done();
-        });
-
+        dummy.verifyFile(assertErrCode.bind(null, 'NOMATCH_CONTENT', done));
       });
 
     });
@@ -761,12 +944,10 @@ describe.only('Dummy', function() {
       before(manualInitDummy);
 
       it('should pass with no error', function(done) {
-
         dummy.verifyFile(function(err) {
           expect(err).to.not.exist;
           done();
         });
-
       });
 
     });
@@ -784,13 +965,7 @@ describe.only('Dummy', function() {
       });
 
       it('should fail with ENOENT error', function(done) {
-
-        dummy.verifyFolder(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('ENOENT');
-          done();
-        });
-
+        dummy.verifyFolder(assertErrCode.bind(null, 'ENOENT', done));
       });
 
     });
@@ -802,13 +977,7 @@ describe.only('Dummy', function() {
       });
 
       it('should fail with UNKNOWN_DETECTED error', function(done) {
-
-        dummy.verifyFolder(function(err) {
-          expect(err).to.be.instanceOf(DummyError);
-          expect(err.code).to.equal('UNKNOWN_DETECTED');
-          done();
-        });
-
+        dummy.verifyFolder(assertErrCode.bind(null, 'UNKNOWN_DETECTED', done));
       });
 
     });
@@ -818,12 +987,10 @@ describe.only('Dummy', function() {
       before(manualInitDummy);
 
       it('should pass with no error', function(done) {
-
         dummy.verifyFolder(function(err) {
           expect(err).to.not.exist;
           done();
         });
-
       });
 
     });
@@ -831,6 +998,95 @@ describe.only('Dummy', function() {
   });
 
 });
+
+// -------------------------------------------------------------------
+// COMMON ASSERTIONS
+// -------------------------------------------------------------------
+
+function assertErrCode(code, done, err) {
+  expect(err).to.be.instanceOf(DummyError);
+  if (typeof code === 'string') {
+    expect(err.code).to.equal(code);
+  } else {
+    expect(err.code).to.match(code);
+  }
+  done();
+}
+
+function assertDummyFile(done) {
+  var filePath = path.join(TEST_ROOT_PATH, TEST_FILE);
+
+  async.series([function(next) {
+    fs.lstat(filePath, function(err, stats) {
+      expect(err).to.not.exist;
+      expect(stats).to.satisfy(function(s) {
+        return s.isFile();
+      });
+      next();
+    });
+  }, function(next) {
+    fs.readFile(
+      filePath,
+      { encoding: 'utf8' },
+      function(err, content) {
+        expect(err).to.not.exist;
+        expect(content).to.equal(TEST_CONTENT);
+        done();
+      }
+    );
+  }], done);
+}
+
+function assertDummyFolder(done) {
+  var folderPath = path.join(TEST_ROOT_PATH, TEST_INDIR);
+
+  async.series([function(next) {
+    fs.lstat(folderPath, function(err, stats) {
+      expect(err).to.not.exist;
+      expect(stats).to.satisfy(function(s) {
+        return s.isDirectory();
+      });
+      next();
+    });
+  }, function(next) {
+    fs.readdir(
+      folderPath,
+      function(err, files) {
+        expect(err).to.not.exist;
+        expect(files).to.have.length(0);
+        next();
+      }
+    );
+  }], done);
+}
+
+function assertNoDummy(done, err) {
+  expect(err).to.not.exist;
+  fs.exists(TEST_ROOT_PATH, function(exists) {
+    assert.isFalse(exists, 'some files/directories still exist');
+    done();
+  });
+}
+
+function assertNoDummyFile(done, err) {
+  expect(err).to.not.exist;
+  fs.exists(path.join(TEST_ROOT_PATH, TEST_FILE), function(exists) {
+    assert.isFalse(exists, 'dummy file still exists');
+    done();
+  });
+}
+
+function assertNoDummyFolder(done, err) {
+  expect(err).to.not.exist;
+  fs.exists(path.join(TEST_ROOT_PATH, TEST_INDIR), function(exists) {
+    assert.isFalse(exists, 'dummy folder still exists');
+    done();
+  });
+}
+
+// -------------------------------------------------------------------
+// HELPERS
+// -------------------------------------------------------------------
 
 function manualInitDummyRoot(callback) {
   async.series([
